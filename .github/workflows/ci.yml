@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+
+      - name: Setup Dagger
+        uses: dagger/dagger-for-github@v7
+
+      - name: Lint
+        run: cd ci && dagger run go run . lint
+
+      - name: Test
+        run: cd ci && dagger run go run . test
+
+      - name: Build multi-arch binaries
+        run: cd ci && dagger run go run . build
