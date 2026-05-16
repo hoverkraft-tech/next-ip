@@ -18,7 +18,7 @@ func main() {
 	flag.Parse()
 
 	if flag.NArg() != 1 {
-		fmt.Fprintln(os.Stderr, "usage: get-next-ip [--count N] [--step N] <cidr>")
+		fmt.Fprintln(os.Stderr, "usage: next-ip [--count N|-c N] [--step N|-s N] <cidr>")
 		os.Exit(1)
 	}
 

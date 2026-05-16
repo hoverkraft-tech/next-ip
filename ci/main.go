@@ -101,10 +101,10 @@ func build(ctx context.Context, client *dagger.Client, src *dagger.Directory, di
 		container := baseContainer(client, src).
 			WithEnvVariable("GOOS", goos).
 			WithEnvVariable("GOARCH", goarch).
-			WithExec([]string{"go", "build", "-trimpath", "-ldflags=-s -w", "-o", "/tmp/get-next-ip", "./cmd/get-next-ip"})
+			WithExec([]string{"go", "build", "-trimpath", "-ldflags=-s -w", "-o", "/tmp/next-ip", "./cmd/next-ip"})
 
-		fileName := fmt.Sprintf("get-next-ip-%s", platformToArtifactSuffix(platform))
-		artifacts = artifacts.WithFile(fileName, container.File("/tmp/get-next-ip"))
+		fileName := fmt.Sprintf("next-ip-%s", platformToArtifactSuffix(platform))
+		artifacts = artifacts.WithFile(fileName, container.File("/tmp/next-ip"))
 	}
 
 	if _, err := artifacts.Export(ctx, filepath.Clean(distPath)); err != nil {
