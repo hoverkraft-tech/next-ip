@@ -37,7 +37,7 @@ func main() {
 	case "test":
 		err = test(ctx, client, src)
 	case "build":
-		err = build(ctx, client, src)
+		err = build(ctx, client, src, filepath.Join(sourceRoot, "dist"))
 	default:
 		err = fmt.Errorf("unknown command %q", os.Args[1])
 	}
@@ -88,7 +88,7 @@ func test(ctx context.Context, client *dagger.Client, src *dagger.Directory) err
 	return nil
 }
 
-func build(ctx context.Context, client *dagger.Client, src *dagger.Directory) error {
+func build(ctx context.Context, client *dagger.Client, src *dagger.Directory, distPath string) error {
 	platforms := []string{"linux/amd64", "linux/arm64"}
 	artifacts := client.Directory()
 
@@ -107,7 +107,7 @@ func build(ctx context.Context, client *dagger.Client, src *dagger.Directory) er
 		artifacts = artifacts.WithFile(fileName, container.File("/tmp/get-next-ip"))
 	}
 
-	if _, err := artifacts.Export(ctx, "../dist"); err != nil {
+	if _, err := artifacts.Export(ctx, filepath.Clean(distPath)); err != nil {
 		return fmt.Errorf("failed to export build artifacts: %w", err)
 	}
 
