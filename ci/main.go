@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"dagger.io/dagger"
@@ -23,7 +24,12 @@ func main() {
 	}
 	defer func() { _ = client.Close() }()
 
-	src := client.Host().Directory("..", dagger.HostDirectoryOpts{Exclude: []string{".git", "dist"}})
+	sourceRoot, err := getSourceRoot()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	src := client.Host().Directory(sourceRoot, dagger.HostDirectoryOpts{Exclude: []string{".git", "dist"}})
 
 	switch os.Args[1] {
 	case "lint":
@@ -40,6 +46,15 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func getSourceRoot() (string, error) {
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		return "", fmt.Errorf("failed to resolve current directory: %w", err)
+	}
+
+	return filepath.Clean(filepath.Join(workingDirectory, "..")), nil
 }
 
 func baseContainer(client *dagger.Client, src *dagger.Directory) *dagger.Container {
