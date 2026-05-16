@@ -33,3 +33,6 @@ dist/
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# local CI helper build artifact
+/ci/ci
