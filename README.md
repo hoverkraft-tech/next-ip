@@ -44,3 +44,7 @@ The CI workflow (`/.github/workflows/ci.yml`) runs Dagger pipelines for:
 - lint (`go fmt` check + `go vet`)
 - tests (`go test ./...`)
 - multi-arch builds (`linux/amd64` and `linux/arm64`)
+
+## Releases
+
+Tagged releases (`v*`) are published with GoReleaser via `/.github/workflows/release.yml`.
