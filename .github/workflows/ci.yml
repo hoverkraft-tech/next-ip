@@ -21,7 +21,7 @@ jobs:
           go-version: '1.25.x'
 
       - name: Setup Dagger
-        uses: dagger/dagger-for-github@v7.0.6
+        uses: dagger/dagger-for-github@v8.4.1
 
       - name: Lint
         run: cd ci && dagger run go run . lint
