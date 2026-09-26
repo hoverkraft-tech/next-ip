@@ -22,11 +22,20 @@ go run ./cmd/next-ip --count 3 --step 3 192.168.100.102/24
 # 192.168.100.105
 # 192.168.100.108
 # 192.168.100.111
+
+go run ./cmd/next-ip --mask 192.168.0.2/20
+# 192.168.0.3/20
+
+go run ./cmd/next-ip --mask --count 3 --step 2 192.168.0.2/20
+# 192.168.0.4/20
+# 192.168.0.6/20
+# 192.168.0.8/20
 ```
 
 Flags:
 - `--count`, `-c`: number of next IP addresses to output
 - `--step`, `-s`: increment step between emitted addresses
+- `--mask`, `-m`: display the netmask (prefix length) of each IP returned
 
 ## Docker image
 
