@@ -1,32 +1,65 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    # checkov:skip=CKV_GHA_7:Force only bypasses change detection; validation and publication settings remain fixed.
+    inputs:
+      force:
+        description: Release even without changes
+        type: boolean
+        default: false
+  schedule:
+    - cron: "25 8 * * 1"
 
-permissions:
-  contents: write
+permissions: {}
+
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
 
 jobs:
-  release:
+  plan:
+    if: github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      should-release: ${{ steps.plan.outputs.should-release }}
+      tag: ${{ steps.plan.outputs.tag }}
     steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.1
+      - id: plan
+        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@80fa7011b27f49f2e04a19f932d36047d17a28f2 # 3.0.7
         with:
-          fetch-depth: 0
+          config-overrides: |
+            tag-prefix: v
+            tag-template: v$RESOLVED_VERSION
+          target-ref: ${{ github.sha }}
+          force: ${{ github.event_name == 'workflow_dispatch' && inputs.force }}
 
-      - name: Setup Go
-        uses: actions/setup-go@v7.0.0
-        with:
-          go-version: '1.25.x'
+  validate:
+    needs: plan
+    if: needs.plan.outputs.should-release == 'true'
+    uses: $/.github/workflows/__shared-ci.yml
+    permissions:
+      contents: read
+    with:
+      release-tag: ${{ needs.plan.outputs.tag }}
 
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v7.3.0
+  release:
+    needs: [plan, validate]
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: read
+    steps:
+      - uses: hoverkraft-tech/ci-github-publish/actions/release/create@80fa7011b27f49f2e04a19f932d36047d17a28f2 # 3.0.7
         with:
-          distribution: goreleaser
-          version: '~> v2'
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          config-overrides: |
+            tag-prefix: v
+            tag-template: v$RESOLVED_VERSION
+          release-artifact-id: ${{ needs.validate.outputs.artifact-id }}
+          tag: ${{ needs.plan.outputs.tag }}
+          target-ref: ${{ github.sha }}
+          changelog-summary: ${{ format('{{"llmAuth":{0},"llmProvider":"openai"}}', toJSON(secrets.OPENAI_API_KEY)) }}
