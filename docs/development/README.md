@@ -23,10 +23,15 @@ Use the supported Go toolchain and golangci-lint declared in the devcontainer. `
 | `make ci`       | Run the complete local validation sequence        |
 
 `make lint-repository` uses the same pinned Hoverkraft Super-Linter image and
-validator selection as CI. It checks workflows, action pinning policy, configuration,
+tool configuration as CI, without a repository validator allowlist. It checks
+workflows, action pinning policy, configuration,
 Markdown, spelling, shell scripts, Dockerfiles and infrastructure security.
 Language lint runs through the project-owned tools in `make lint-code` and the shared
 language CI, so dependency resolution and tool configuration stay consistent.
+Super-Linter checks Go recursively through `GO_MODULES`; its standalone-file mode
+cannot combine files from multiple packages and is disabled. `GOTOOLCHAIN=local`
+keeps its bundled compiler compatible with its golangci-lint binary. The dedicated
+Go CI still uses the project toolchain.
 
 ## Continuous integration
 
@@ -37,12 +42,17 @@ failures continue to block validation. The semantic PR workflow and repository l
 share [.commitlintrc.json](../../.commitlintrc.json).
 
 The `ci-github-go` references intentionally use `main` during adoption.
-The pinning policy permits that repository only; other external actions use reviewed
-SHAs with version comments. Replace those temporary branch references with reviewed
+Those references carry temporary inline pinning exceptions; other external actions
+use reviewed SHAs with version comments. Replace those temporary branch references with reviewed
 release pins after adoption.
 
 Dependabot groups weekly updates for actions, language dependencies, Docker images
 and devcontainer features, with a seven-day cooldown and Conventional Commit titles.
+Renovate maintains runtime versions and embedded tool versions through the scheduled
+[workflow](../../.github/workflows/__renovate.yml) and
+[configuration](../../.github/renovate.json). It uses the organization CI bot's
+`CI_BOT_APP_CLIENT_ID` variable and `CI_BOT_APP_PRIVATE_KEY` secret. Dependabot
+continues to maintain package dependencies, actions, Docker images and features.
 Review the lockfile and run `make ci` when updating dependencies or features.
 
 ## Release archives
@@ -60,6 +70,5 @@ goreleaser release --clean --skip=publish --snapshot
 
 ## Container policy
 
-The container runs as a non-root user. The scoped Docker health-check exception in
-[the scanner configuration](../../.github/linters/trivy-exceptions.yaml) documents
-why this application has no HTTP health endpoint.
+The container runs as a non-root user and declares `HEALTHCHECK NONE`. This
+one-shot CLI exits after printing its result and has no health endpoint.

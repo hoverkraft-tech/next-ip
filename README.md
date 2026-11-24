@@ -1,5 +1,18 @@
 # next-ip
 
+<div align="center">
+  <img src="https://github.com/hoverkraft-tech.png" alt="Hoverkraft logo" width="200" />
+</div>
+
+---
+
+[![Main - Continuous Integration](https://github.com/hoverkraft-tech/next-ip/actions/workflows/main-ci.yml/badge.svg)](https://github.com/hoverkraft-tech/next-ip/actions/workflows/main-ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/hoverkraft-tech/next-ip)](https://github.com/hoverkraft-tech/next-ip/releases)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![License](https://img.shields.io/github/license/hoverkraft-tech/next-ip)](LICENSE)
+
+## Overview
+
 Small Go binary that returns the next IP address(es) from a CIDR input.
 
 ## Usage
@@ -53,4 +66,6 @@ Download platform archives and checksums from [GitHub Releases](https://github.c
 
 See the [development guide](docs/development/README.md) for local checks and release maintenance.
 
-See [Contributing](CONTRIBUTING.md) to develop or propose changes.
+## Contributing
+
+Contributions are welcome. Read [Contributing](CONTRIBUTING.md) before proposing a change.

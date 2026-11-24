@@ -16,3 +16,7 @@ indent_style = tab
 
 [Makefile]
 indent_style = tab
+
+# Preserve the verbatim Apache license text.
+[LICENSE]
+indent_size = unset

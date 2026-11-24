@@ -29,32 +29,17 @@ jobs:
     with:
       comment: false
       lint-all: true
-      javascript-linter-toolchain: ""
-      python-linter-toolchain: ""
+      # GO_MODULES runs the full linter recursively; standalone-file mode cannot span packages.
       linter-env: |
+        VALIDATE_GO=false
+        GOTOOLCHAIN=local
         IGNORE_GITIGNORED_FILES=true
         LOG_LEVEL=INFO
-        VALIDATE_BASH=true
-        VALIDATE_BASH_EXEC=true
-        VALIDATE_BIOME_FORMAT=true
-        VALIDATE_BIOME_LINT=true
-        VALIDATE_CHECKOV=true
-        VALIDATE_DOCKERFILE_HADOLINT=true
-        VALIDATE_GITHUB_ACTIONS=true
-        VALIDATE_GITHUB_ACTIONS_ZIZMOR=true
-        VALIDATE_GIT_COMMITLINT=${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
-        VALIDATE_MARKDOWN=true
-        VALIDATE_MARKDOWN_PRETTIER=true
-        VALIDATE_NATURAL_LANGUAGE=true
-        VALIDATE_SHELL_SHFMT=true
-        VALIDATE_TRIVY=true
-        VALIDATE_YAML=true
-        VALIDATE_YAML_PRETTIER=true
 
   test:
     name: Go Continuous Integration
     # Track main while validating the new shared Go workflow in consumers.
-    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@main # ratchet:exclude - track shared language CI during adoption
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@main # ratchet:exclude # zizmor: ignore[unpinned-uses]
     permissions:
       contents: read
       id-token: write
@@ -76,7 +61,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: hoverkraft-tech/ci-github-go/actions/setup-go@main # ratchet:exclude - track shared language CI during adoption
+        uses: hoverkraft-tech/ci-github-go/actions/setup-go@main # ratchet:exclude # zizmor: ignore[unpinned-uses]
         with:
           go-version: "1.27"
 

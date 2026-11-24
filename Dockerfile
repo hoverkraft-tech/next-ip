@@ -1,4 +1,3 @@
-# checkov:skip=CKV_DOCKER_2:This one-shot CLI exits after printing its result; it has no long-running health endpoint.
 FROM golang:1.27-alpine@sha256:70bd7ddea8b6cbe5d6943cde279d6b67feb10cc924fb9100d1d8757c1575b280 AS builder
 WORKDIR /src
 COPY go.mod ./
@@ -9,4 +8,6 @@ RUN CGO_ENABLED=0 go build -trimpath -ldflags='-s -w' -o /out/next-ip ./cmd/next
 FROM scratch
 COPY --from=builder /out/next-ip /next-ip
 USER 65532:65532
+# A one-shot CLI exits after producing its output; it has no health endpoint.
+HEALTHCHECK NONE
 ENTRYPOINT ["/next-ip"]

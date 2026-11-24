@@ -7,4 +7,3 @@ scan:
     - vuln
     - misconfig
     - secret
-ignorefile: .github/linters/trivy-exceptions.yaml

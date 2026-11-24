@@ -5,24 +5,9 @@ ARG GID=1000
 USER ${UID}:${GID}
 HEALTHCHECK --interval=5m --timeout=10s --start-period=30s --retries=3 CMD ["/bin/sh", "-c", "test -d /github/home"]
 
-# Application lint uses the project-owned Go or Python tools through make lint-code.
-ENV VALIDATE_JAVASCRIPT_TOOLCHAIN="" \
-    VALIDATE_PYTHON_TOOLCHAIN="" \
+# Lint every Go package with GO_MODULES; standalone-file mode cannot span packages.
+# Use the Go compiler bundled with golangci-lint to keep export-data formats compatible.
+ENV VALIDATE_GO=false \
+    GOTOOLCHAIN=local \
     LOG_LEVEL=INFO \
-    IGNORE_GITIGNORED_FILES=true \
-    VALIDATE_BASH=true \
-    VALIDATE_BASH_EXEC=true \
-    VALIDATE_BIOME_FORMAT=true \
-    VALIDATE_BIOME_LINT=true \
-    VALIDATE_CHECKOV=true \
-    VALIDATE_DOCKERFILE_HADOLINT=true \
-    VALIDATE_GITHUB_ACTIONS=true \
-    VALIDATE_GITHUB_ACTIONS_ZIZMOR=true \
-    VALIDATE_GIT_COMMITLINT=true \
-    VALIDATE_MARKDOWN=true \
-    VALIDATE_MARKDOWN_PRETTIER=true \
-    VALIDATE_NATURAL_LANGUAGE=true \
-    VALIDATE_SHELL_SHFMT=true \
-    VALIDATE_TRIVY=true \
-    VALIDATE_YAML=true \
-    VALIDATE_YAML_PRETTIER=true
+    IGNORE_GITIGNORED_FILES=true
