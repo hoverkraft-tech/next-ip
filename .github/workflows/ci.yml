@@ -1,6 +1,11 @@
+---
 name: CI
 
 on:
+  workflow_dispatch:
+  schedule:
+    - cron: "25 8 * * 1"
+  merge_group:
   pull_request:
   push:
     branches: [main]
@@ -17,3 +22,9 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read
+      issues: write
+      packages: read
+      pull-requests: write
+      security-events: write
+      statuses: write

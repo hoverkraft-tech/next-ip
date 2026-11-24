@@ -51,4 +51,6 @@ The final image is based on `scratch` and runs a static binary.
 
 Download platform archives and checksums from [GitHub Releases](https://github.com/hoverkraft-tech/next-ip/releases).
 
-See the [development guide](docs/development.md) for local checks and release maintenance.
+See the [development guide](docs/development/README.md) for local checks and release maintenance.
+
+See [Contributing](CONTRIBUTING.md) to develop or propose changes.

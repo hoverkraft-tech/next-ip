@@ -1,0 +1,8 @@
+---
+misconfigurations:
+  - id: DS-0026
+    paths:
+      - Dockerfile
+    statement:
+      This one-shot CLI exits after printing its result; it has no long-running
+      health endpoint.

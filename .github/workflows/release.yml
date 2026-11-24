@@ -1,3 +1,4 @@
+---
 name: Release
 
 on:
@@ -44,6 +45,12 @@ jobs:
     permissions:
       contents: read
       id-token: write
+      actions: read
+      issues: write
+      packages: read
+      pull-requests: write
+      security-events: write
+      statuses: write
     with:
       release-tag: ${{ needs.plan.outputs.tag }}
 

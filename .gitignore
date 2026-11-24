@@ -36,3 +36,10 @@ dist/
 
 /junit.xml
 /golangci-lint.sarif
+
+# Local developer tools and CI reports
+/.cache/
+/bin/
+/super-linter-output/
+/super-linter.log
+/.devcontainer/.env

@@ -1,3 +1,4 @@
+---
 name: Shared - Validate and package
 
 on:
@@ -14,9 +15,46 @@ on:
 permissions: {}
 
 jobs:
-  go:
+  lint:
+    name: Repository quality
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@33462c06bcbbd9144d7f661929e61953604b444d # 4.3.2
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+      packages: read
+      pull-requests: write
+      security-events: write
+      statuses: write
+    with:
+      comment: false
+      lint-all: true
+      javascript-linter-toolchain: ""
+      python-linter-toolchain: ""
+      linter-env: |
+        IGNORE_GITIGNORED_FILES=true
+        LOG_LEVEL=INFO
+        VALIDATE_BASH=true
+        VALIDATE_BASH_EXEC=true
+        VALIDATE_BIOME_FORMAT=true
+        VALIDATE_BIOME_LINT=true
+        VALIDATE_CHECKOV=true
+        VALIDATE_DOCKERFILE_HADOLINT=true
+        VALIDATE_GITHUB_ACTIONS=true
+        VALIDATE_GITHUB_ACTIONS_ZIZMOR=true
+        VALIDATE_GIT_COMMITLINT=${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+        VALIDATE_MARKDOWN=true
+        VALIDATE_MARKDOWN_PRETTIER=true
+        VALIDATE_NATURAL_LANGUAGE=true
+        VALIDATE_SHELL_SHFMT=true
+        VALIDATE_TRIVY=true
+        VALIDATE_YAML=true
+        VALIDATE_YAML_PRETTIER=true
+
+  test:
+    name: Go Continuous Integration
     # Track main while validating the new shared Go workflow in consumers.
-    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@main
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@main # ratchet:exclude - track shared language CI during adoption
     permissions:
       contents: read
       id-token: write
@@ -24,7 +62,7 @@ jobs:
       go-versions: '["1.26", "1.27"]'
 
   build:
-    needs: go
+    needs: [lint, test]
     outputs:
       artifact-id: ${{ steps.artifacts.outputs.artifact-id }}
     runs-on: ubuntu-latest
@@ -38,7 +76,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: hoverkraft-tech/ci-github-go/actions/setup-go@main
+        uses: hoverkraft-tech/ci-github-go/actions/setup-go@main # ratchet:exclude - track shared language CI during adoption
         with:
           go-version: "1.27"
 
@@ -65,3 +103,13 @@ jobs:
             dist/*.tar.gz
             dist/checksums.txt
           if-no-files-found: error
+
+  reports:
+    if: ${{ !cancelled() }}
+    needs: [lint, test]
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/ci-reports.yml@33462c06bcbbd9144d7f661929e61953604b444d # 4.3.2
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      job-results: ${{ toJSON(needs) }}
