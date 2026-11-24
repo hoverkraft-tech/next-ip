@@ -34,5 +34,5 @@ dist/
 # .idea/
 # .vscode/
 
-# local CI helper build artifact
-/ci/ci
+/junit.xml
+/golangci-lint.sarif

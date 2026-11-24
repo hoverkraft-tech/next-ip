@@ -14,7 +14,17 @@ on:
 permissions: {}
 
 jobs:
+  go:
+    # Track main while validating the new shared Go workflow in consumers.
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@main
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      go-versions: '["1.26", "1.27"]'
+
   build:
+    needs: go
     outputs:
       artifact-id: ${{ steps.artifacts.outputs.artifact-id }}
     runs-on: ubuntu-latest
@@ -28,19 +38,9 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        uses: hoverkraft-tech/ci-github-go/actions/setup-go@main
         with:
-          go-version: "1.25.x"
-          cache: false
-
-      - name: Setup Dagger
-        uses: dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77 # v8.4.1
-
-      - name: Lint
-        run: cd ci && dagger run go run . lint
-
-      - name: Test
-        run: cd ci && dagger run go run . test
+          go-version: "1.27"
 
       - name: Set planned version for packaging
         if: inputs.release-tag != ''

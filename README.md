@@ -33,6 +33,7 @@ go run ./cmd/next-ip --mask --count 3 --step 2 192.168.0.2/20
 ```
 
 Flags:
+
 - `--count`, `-c`: number of next IP addresses to output
 - `--step`, `-s`: increment step between emitted addresses
 - `--mask`, `-m`: display the netmask (prefix length) of each IP returned
@@ -46,14 +47,8 @@ docker run --rm next-ip 192.168.100.12/24
 
 The final image is based on `scratch` and runs a static binary.
 
-## CI (Dagger)
-
-The CI workflow (`/.github/workflows/ci.yml`) runs Dagger pipelines for:
-
-- lint (`go fmt` check + `go vet`)
-- tests (`go test ./...`)
-- multi-arch builds (`linux/amd64` and `linux/arm64`)
-
 ## Releases
 
-Tagged releases (`v*`) are published with GoReleaser via `/.github/workflows/release.yml`.
+Download platform archives and checksums from [GitHub Releases](https://github.com/hoverkraft-tech/next-ip/releases).
+
+See the [development guide](docs/development.md) for local checks and release maintenance.
