@@ -56,18 +56,17 @@ jobs:
 
   release:
     needs: [plan, validate]
-    runs-on: ubuntu-latest
+    # TODO: Replace this candidate pin with a released SHA after https://github.com/hoverkraft-tech/ci-github-go/pull/13
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/release.yml@2db38ba3c9d23770c04b71866551231470cd2994 # PR #13 (unreleased)
     permissions:
       actions: read
       contents: write
       pull-requests: read
-    steps:
-      - uses: hoverkraft-tech/ci-github-publish/actions/release/create@bf24f894f60a3def62a8750f3964d05acb052c11 # 3.1.2
-        with:
-          config-overrides: |
-            tag-prefix: v
-            tag-template: v$RESOLVED_VERSION
-          release-artifact-id: ${{ needs.validate.outputs.artifact-id }}
-          tag: ${{ needs.plan.outputs.tag }}
-          target-ref: ${{ github.sha }}
-          changelog-summary: ${{ format('{{"llmAuth":{0},"llmProvider":"openai"}}', toJSON(secrets.OPENAI_API_KEY)) }}
+    with:
+      release-config: |
+        tag-prefix: v
+        tag-template: v$RESOLVED_VERSION
+      artifact-id: ${{ needs.validate.outputs.artifact-id }}
+      tag: ${{ needs.plan.outputs.tag }}
+    secrets:
+      changelog-summary: ${{ secrets.CHANGELOG_SUMMARY }}

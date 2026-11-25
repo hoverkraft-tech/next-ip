@@ -47,46 +47,13 @@ jobs:
 
   build:
     needs: [lint, test]
-    outputs:
-      artifact-id: ${{ steps.artifacts.outputs.artifact-id }}
-    runs-on: ubuntu-latest
+    # TODO: Replace this candidate pin with a released SHA after https://github.com/hoverkraft-tech/ci-github-go/pull/13
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/build-release.yml@2db38ba3c9d23770c04b71866551231470cd2994 # PR #13 (unreleased)
     permissions:
       contents: read
-    steps:
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-
-      - name: Setup Go
-        uses: hoverkraft-tech/ci-github-go/actions/setup-go@dcc9e10f1938e4496a40edc4e90eb0a6294a8bb2 # 0.0.1
-        with:
-          go-version: "1.27"
-
-      - name: Set planned version for packaging
-        if: inputs.release-tag != ''
-        env:
-          RELEASE_TAG: ${{ inputs.release-tag }}
-        run: git tag -- "$RELEASE_TAG" "$GITHUB_SHA"
-
-      - name: Build release archives
-        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
-        with:
-          version: "~> v2"
-          args: release --clean --skip=publish ${{ inputs.release-tag == '' && '--snapshot' || '' }}
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-
-      - name: Retain release archives
-        id: artifacts
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: release-archives
-          path: |
-            dist/*.tar.gz
-            dist/checksums.txt
-          if-no-files-found: error
+    with:
+      go-version: "1.27"
+      tag: ${{ inputs.release-tag }}
 
   reports:
     if: ${{ !cancelled() }}

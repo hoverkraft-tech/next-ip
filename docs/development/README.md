@@ -42,23 +42,30 @@ failures continue to block validation. The semantic PR workflow and repository l
 share [.commitlintrc.json](../../.commitlintrc.json).
 
 External actions and reusable workflows use reviewed release SHAs with matching
-version comments. Dependabot maintains these references.
+version comments. Dependabot maintains these references. The pending shared workflow
+capabilities use immutable candidate commits with linked TODOs; replace those pins
+with the first containing release after the supporting PRs merge.
 
-Dependabot groups weekly updates for actions, language dependencies, Docker images
-and devcontainer features, with a seven-day cooldown and Conventional Commit titles.
-Renovate maintains runtime versions and embedded tool versions through the scheduled
-[workflow](../../.github/workflows/__renovate.yml) and
-[configuration](../../.github/renovate.json). It uses the organization CI bot's
-`CI_BOT_APP_CLIENT_ID` variable and `CI_BOT_APP_PRIVATE_KEY` secret. Dependabot
-continues to maintain package dependencies, actions, Docker images and features.
+Dependabot is the primary updater for Go modules, GitHub Actions, Docker images
+and devcontainer features, with weekly groups and a seven-day cooldown.
+Renovate is limited to versions outside those supported manifests: Go and
+golangci-lint feature options, and the govulncheck version embedded in the Makefile.
+Renovate's Go module manager is disabled; Dependabot owns `go.mod`.
+The scheduled [Renovate workflow](../../.github/workflows/__renovate.yml) uses
+`CI_BOT_APP_CLIENT_ID` and `CI_BOT_APP_PRIVATE_KEY`; its
+[configuration](../../.github/renovate.json) explicitly limits enabled managers.
 Review the lockfile and run `make ci` when updating dependencies or features.
 
 ## Release archives
 
-Go tests run on the supported CI matrix. GoReleaser then packages Linux and macOS
+Go tests run on the supported CI matrix. The shared Go `build-release.yml`
+workflow uses the project GoReleaser configuration to package Linux and macOS
 amd64/arm64 and Windows amd64 archives with CGO disabled and records checksums.
 Manual or scheduled releases plan a `v`-prefixed tag, validate and package it, then
-publish those retained archives without rebuilding during publication.
+publish those retained archives through the shared Go `release.yml` workflow.
+Publication verifies the artifact belongs to the same run, commit and planned tag,
+then attaches it without rebuilding. `CHANGELOG_SUMMARY` contains the optional
+complete summary configuration; no provider-specific key is assembled in this repository.
 
 With GoReleaser v2 installed, validate packaging locally:
 

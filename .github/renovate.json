@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
-  "enabledManagers": ["custom.regex", "gomod"],
+  "enabledManagers": ["custom.regex"],
   "semanticCommits": "enabled",
   "semanticCommitType": "build",
   "minimumReleaseAge": "7 days",
@@ -32,17 +32,6 @@
       ],
       "datasourceTemplate": "go",
       "depNameTemplate": "golang.org/x/vuln"
-    }
-  ],
-  "packageRules": [
-    {
-      "matchManagers": ["gomod"],
-      "matchDepNames": ["!go"],
-      "enabled": false
-    },
-    {
-      "matchDepNames": ["go"],
-      "groupName": "Go toolchain"
     }
   ]
 }
