@@ -17,7 +17,7 @@ permissions: {}
 jobs:
   lint:
     name: Repository quality
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@33462c06bcbbd9144d7f661929e61953604b444d # 4.3.2
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@af0bdd6313bd49aaf4a8a7f0de005fb0db856b03 # 4.3.3
     permissions:
       actions: read
       contents: read
@@ -38,8 +38,7 @@ jobs:
 
   test:
     name: Go Continuous Integration
-    # Track main while validating the new shared Go workflow in consumers.
-    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@main # ratchet:exclude # zizmor: ignore[unpinned-uses]
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@dcc9e10f1938e4496a40edc4e90eb0a6294a8bb2 # 0.0.1
     permissions:
       contents: read
       id-token: write
@@ -61,7 +60,7 @@ jobs:
           fetch-depth: 0
 
       - name: Setup Go
-        uses: hoverkraft-tech/ci-github-go/actions/setup-go@main # ratchet:exclude # zizmor: ignore[unpinned-uses]
+        uses: hoverkraft-tech/ci-github-go/actions/setup-go@dcc9e10f1938e4496a40edc4e90eb0a6294a8bb2 # 0.0.1
         with:
           go-version: "1.27"
 
@@ -92,7 +91,7 @@ jobs:
   reports:
     if: ${{ !cancelled() }}
     needs: [lint, test]
-    uses: hoverkraft-tech/ci-github-common/.github/workflows/ci-reports.yml@33462c06bcbbd9144d7f661929e61953604b444d # 4.3.2
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/ci-reports.yml@af0bdd6313bd49aaf4a8a7f0de005fb0db856b03 # 4.3.3
     permissions:
       contents: read
       pull-requests: write
