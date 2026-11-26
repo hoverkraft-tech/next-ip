@@ -10,7 +10,7 @@ on:
     outputs:
       artifact-id:
         description: Validated release archives and checksums
-        value: ${{ jobs.build.outputs.artifact-id }}
+        value: ${{ jobs.test.outputs.package-artifact-id }}
 
 permissions: {}
 
@@ -38,22 +38,16 @@ jobs:
 
   test:
     name: Go Continuous Integration
-    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@dcc9e10f1938e4496a40edc4e90eb0a6294a8bb2 # 0.0.1
+    needs: lint
+    # TODO: Replace this candidate pin with a released SHA after https://github.com/hoverkraft-tech/ci-github-go/pull/13
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@9968f40606caff42d54df871ffe01dec80409107 # PR #13 (unreleased)
     permissions:
       contents: read
       id-token: write
     with:
       go-versions: '["1.26", "1.27"]'
-
-  build:
-    needs: [lint, test]
-    # TODO: Replace this candidate pin with a released SHA after https://github.com/hoverkraft-tech/ci-github-go/pull/13
-    uses: hoverkraft-tech/ci-github-go/.github/workflows/build-release.yml@2db38ba3c9d23770c04b71866551231470cd2994 # PR #13 (unreleased)
-    permissions:
-      contents: read
-    with:
-      go-version: "1.27"
-      tag: ${{ inputs.release-tag }}
+      package: |
+        {"tag":${{ toJSON(inputs.release-tag) }}}
 
   reports:
     if: ${{ !cancelled() }}

@@ -58,10 +58,12 @@ Review the lockfile and run `make ci` when updating dependencies or features.
 
 ## Release archives
 
-Go tests run on the supported CI matrix. The shared Go `build-release.yml`
-workflow uses the project GoReleaser configuration to package Linux and macOS
+Go tests run on the supported CI matrix. The shared Go CI workflow's packaging
+stage uses the project GoReleaser configuration to package Linux and macOS
 amd64/arm64 and Windows amd64 archives with CGO disabled and records checksums.
-Manual or scheduled releases plan a `v`-prefixed tag, validate and package it, then
+The shared `prepare-package-release.yml` plans a `v`-prefixed tag and handles
+no-change runs, already-published releases and manual tag recovery. Runs with
+status `ready` validate and package the tag, then
 publish those retained archives through the shared Go `release.yml` workflow.
 Publication verifies the artifact belongs to the same run, commit and planned tag,
 then attaches it without rebuilding. `CHANGELOG_SUMMARY` contains the optional

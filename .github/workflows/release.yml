@@ -19,28 +19,21 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  plan:
-    if: github.ref_type == 'branch' && github.ref_name == github.event.repository.default_branch
-    runs-on: ubuntu-latest
+  prepare:
+    # TODO: Replace this candidate pin with a released SHA after https://github.com/hoverkraft-tech/ci-github-go/pull/13
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/prepare-package-release.yml@9968f40606caff42d54df871ffe01dec80409107 # PR #13 (unreleased)
     permissions:
       contents: read
       pull-requests: read
-    outputs:
-      should-release: ${{ steps.plan.outputs.should-release }}
-      tag: ${{ steps.plan.outputs.tag }}
-    steps:
-      - id: plan
-        uses: hoverkraft-tech/ci-github-publish/actions/release/plan@bf24f894f60a3def62a8750f3964d05acb052c11 # 3.1.2
-        with:
-          config-overrides: |
-            tag-prefix: v
-            tag-template: v$RESOLVED_VERSION
-          target-ref: ${{ github.sha }}
-          force: ${{ github.event_name == 'workflow_dispatch' && inputs.force }}
+    with:
+      release-config: |
+        tag-prefix: v
+        tag-template: v$RESOLVED_VERSION
+      force: ${{ github.event_name == 'workflow_dispatch' && inputs.force }}
 
   validate:
-    needs: plan
-    if: needs.plan.outputs.should-release == 'true'
+    needs: prepare
+    if: needs.prepare.outputs.status == 'ready'
     uses: $/.github/workflows/__shared-ci.yml
     permissions:
       contents: read
@@ -52,12 +45,12 @@ jobs:
       security-events: write
       statuses: write
     with:
-      release-tag: ${{ needs.plan.outputs.tag }}
+      release-tag: ${{ needs.prepare.outputs.tag }}
 
   release:
-    needs: [plan, validate]
+    needs: [prepare, validate]
     # TODO: Replace this candidate pin with a released SHA after https://github.com/hoverkraft-tech/ci-github-go/pull/13
-    uses: hoverkraft-tech/ci-github-go/.github/workflows/release.yml@2db38ba3c9d23770c04b71866551231470cd2994 # PR #13 (unreleased)
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/release.yml@9968f40606caff42d54df871ffe01dec80409107 # PR #13 (unreleased)
     permissions:
       actions: read
       contents: write
@@ -67,6 +60,6 @@ jobs:
         tag-prefix: v
         tag-template: v$RESOLVED_VERSION
       artifact-id: ${{ needs.validate.outputs.artifact-id }}
-      tag: ${{ needs.plan.outputs.tag }}
+      tag: ${{ needs.prepare.outputs.tag }}
     secrets:
       changelog-summary: ${{ secrets.CHANGELOG_SUMMARY }}
