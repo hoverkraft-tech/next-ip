@@ -1,5 +1,18 @@
 # next-ip
 
+<div align="center">
+  <img src="https://github.com/hoverkraft-tech.png" alt="Hoverkraft logo" width="200" />
+</div>
+
+---
+
+[![Main - Continuous Integration](https://github.com/hoverkraft-tech/next-ip/actions/workflows/main-ci.yml/badge.svg)](https://github.com/hoverkraft-tech/next-ip/actions/workflows/main-ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/hoverkraft-tech/next-ip)](https://github.com/hoverkraft-tech/next-ip/releases)
+[![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![License](https://img.shields.io/github/license/hoverkraft-tech/next-ip)](LICENSE)
+
+## Overview
+
 Small Go binary that returns the next IP address(es) from a CIDR input.
 
 ## Usage
@@ -33,6 +46,7 @@ go run ./cmd/next-ip --mask --count 3 --step 2 192.168.0.2/20
 ```
 
 Flags:
+
 - `--count`, `-c`: number of next IP addresses to output
 - `--step`, `-s`: increment step between emitted addresses
 - `--mask`, `-m`: display the netmask (prefix length) of each IP returned
@@ -46,14 +60,12 @@ docker run --rm next-ip 192.168.100.12/24
 
 The final image is based on `scratch` and runs a static binary.
 
-## CI (Dagger)
-
-The CI workflow (`/.github/workflows/ci.yml`) runs Dagger pipelines for:
-
-- lint (`go fmt` check + `go vet`)
-- tests (`go test ./...`)
-- multi-arch builds (`linux/amd64` and `linux/arm64`)
-
 ## Releases
 
-Tagged releases (`v*`) are published with GoReleaser via `/.github/workflows/release.yml`.
+Download platform archives and checksums from [GitHub Releases](https://github.com/hoverkraft-tech/next-ip/releases).
+
+See the [development guide](docs/development/README.md) for local checks and release maintenance.
+
+## Contributing
+
+Contributions are welcome. Read [Contributing](CONTRIBUTING.md) before proposing a change.

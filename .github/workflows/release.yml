@@ -1,32 +1,65 @@
+---
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_dispatch:
+    # checkov:skip=CKV_GHA_7:Force only bypasses change detection; validation and publication settings remain fixed.
+    inputs:
+      force:
+        description: Release even without changes
+        type: boolean
+        default: false
+  schedule:
+    - cron: "25 8 * * 1"
 
-permissions:
-  contents: write
+permissions: {}
+
+concurrency:
+  group: release-${{ github.repository }}
+  cancel-in-progress: false
 
 jobs:
+  prepare:
+    # TODO: Replace this candidate pin with a released SHA after https://github.com/hoverkraft-tech/ci-github-go/pull/13
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/prepare-package-release.yml@9968f40606caff42d54df871ffe01dec80409107 # PR #13 (unreleased)
+    permissions:
+      contents: read
+      pull-requests: read
+    with:
+      release-config: |
+        tag-prefix: v
+        tag-template: v$RESOLVED_VERSION
+      force: ${{ github.event_name == 'workflow_dispatch' && inputs.force }}
+
+  validate:
+    needs: prepare
+    if: needs.prepare.outputs.status == 'ready'
+    uses: $/.github/workflows/__shared-ci.yml
+    permissions:
+      contents: read
+      id-token: write
+      actions: read
+      issues: write
+      packages: read
+      pull-requests: write
+      security-events: write
+      statuses: write
+    with:
+      release-tag: ${{ needs.prepare.outputs.tag }}
+
   release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7.0.1
-        with:
-          fetch-depth: 0
-
-      - name: Setup Go
-        uses: actions/setup-go@v7.0.0
-        with:
-          go-version: '1.25.x'
-
-      - name: Run GoReleaser
-        uses: goreleaser/goreleaser-action@v7.3.0
-        with:
-          distribution: goreleaser
-          version: '~> v2'
-          args: release --clean
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    needs: [prepare, validate]
+    # TODO: Replace this candidate pin with a released SHA after https://github.com/hoverkraft-tech/ci-github-go/pull/13
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/release.yml@9968f40606caff42d54df871ffe01dec80409107 # PR #13 (unreleased)
+    permissions:
+      actions: read
+      contents: write
+      pull-requests: read
+    with:
+      release-config: |
+        tag-prefix: v
+        tag-template: v$RESOLVED_VERSION
+      artifact-id: ${{ needs.validate.outputs.artifact-id }}
+      tag: ${{ needs.prepare.outputs.tag }}
+    secrets:
+      changelog-summary: ${{ secrets.CHANGELOG_SUMMARY }}

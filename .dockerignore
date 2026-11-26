@@ -1,0 +1,10 @@
+.git
+.cache
+.devcontainer
+.github
+docs
+bin
+dist
+coverage.out
+junit.xml
+golangci-lint.sarif

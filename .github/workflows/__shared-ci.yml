@@ -1,0 +1,60 @@
+---
+name: Shared - Validate and package
+
+on:
+  workflow_call:
+    inputs:
+      release-tag:
+        description: Planned release tag; empty builds snapshot archives
+        type: string
+    outputs:
+      artifact-id:
+        description: Validated release archives and checksums
+        value: ${{ jobs.test.outputs.package-artifact-id }}
+
+permissions: {}
+
+jobs:
+  lint:
+    name: Repository quality
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/linter.yml@af0bdd6313bd49aaf4a8a7f0de005fb0db856b03 # 4.3.3
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+      packages: read
+      pull-requests: write
+      security-events: write
+      statuses: write
+    with:
+      comment: false
+      lint-all: true
+      # GO_MODULES runs the full linter recursively; standalone-file mode cannot span packages.
+      linter-env: |
+        VALIDATE_GO=false
+        GOTOOLCHAIN=local
+        IGNORE_GITIGNORED_FILES=true
+        LOG_LEVEL=INFO
+
+  test:
+    name: Go Continuous Integration
+    needs: lint
+    # TODO: Replace this candidate pin with a released SHA after https://github.com/hoverkraft-tech/ci-github-go/pull/13
+    uses: hoverkraft-tech/ci-github-go/.github/workflows/continuous-integration.yml@9968f40606caff42d54df871ffe01dec80409107 # PR #13 (unreleased)
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      go-versions: '["1.26", "1.27"]'
+      package: |
+        {"tag":${{ toJSON(inputs.release-tag) }}}
+
+  reports:
+    if: ${{ !cancelled() }}
+    needs: [lint, test]
+    uses: hoverkraft-tech/ci-github-common/.github/workflows/ci-reports.yml@af0bdd6313bd49aaf4a8a7f0de005fb0db856b03 # 4.3.3
+    permissions:
+      contents: read
+      pull-requests: write
+    with:
+      job-results: ${{ toJSON(needs) }}
